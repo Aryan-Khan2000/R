@@ -9,29 +9,71 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# coRdon R Package
+# **coRdon R Package**
 
-## Contents:
+## **Contents:**
+**1:** Introduction
+**2:** Materials
+**2.1:** Installation of packages
+**2.2:** Example data
+**2.3:** Loading DNA Data Sequences 
+**2.4:** Calculating Codon Usage statistics
+**2.5:** Predicting genes expressivity
+**3:** Data Analysis and Results
+**3.1:** Calculate Codon Usage Bias
+**3.2:** Visualization of Codon Usage Bias
+**3.3:** Predict genes expressivity
+**3.4:** Functional annotation
+**3.5:** Visualization of enrichment
+**3.6:** Integration
+**4:** Discussion
+**5:** Conclusion
+**6:** References
+
+# 1. Introduction
+Codons are trinucleotide sequences of either DNA or RNA which encode amino acids. However, there are sometimes different codons which encode for the same amino acids. These are known as synonymous codons (Tian et al. 2020). The preferred used of some synonymous codons compared to others is known as codon usage bias (CUB) (Tian et al. 2020). CUB is seen as important in the regulation of gene expression at a translation level and the synonymous codons specific to the tRNA species leads to optimal translation (Galtier et al. 2018). As synonymous codons are not seen as random (Jordan-Paiz et al. 2021); it is interesting to see how CUB is linked to gene expression in organisms. CUB can be used to predict expression levels of genes which can be compared to a known CUB set of genes that are highly expressed to see whether a set of genes are optimized for gene expression or not (Jeacock et al. 2018). 
+
+CUB can be used to predict highly expressed genes in a single genome or metagenome consisting of genomes from multiple organisms. CUB has been shown to be present in microbial species environment (Weissman et al. 2021). By analyzing highly predicted CUB expression in the microbial community this may determine enriched functions within genomes (Weissman et al. 2021). This is useful as it may give insight to the biological significance CUB may have on evolution in different organisms. This would then suggest CUB role in optimizing translation and regulation of proteins within different organisms and what roles they played in natural selection or directional mutation pressure (Kumar et al. 2018).
+
+The package coRdon is a tool used for analyzing codon usage in KEGG/COG annotated DNA sequences or various unannotated DNA sequences. KEGG/COG annotated data means that sequences are assigned to categories (Elek 2018). This package can then allow for calculations and visualizations of both CUB and enrichment of the gene sets being analysed. This is done by using sequences which are put into a codonTable which then is used to calculate codon usage bias, which can be compared to the reference codon usage bias genes which are highly expressed (Elek 2018). This is to see whether the genes are optimized for gene expression or not. Enrichment of genes can show how statistically significant a gene is being enriched which can show whether a gene is being optimized for gene expression or not (Tipney and Hunter 2010).
+
+The statistical analysis found within the package calculate values of the codon usage measure for every sequence in the given codonTable object. The following methods are implemented include Measure Independent of Length and Composition (MILC) (Supek and Vlahovicek 2005), codon usage bias (B) (Karlin et al. 2001), effective number of codons (ENC) (Wright 1990), effective number of codons prime (ENC’) (Novembre 2002), maximum-likelihood codon bias (MCB) (Urrutia and Hurst 2001), synonymous codon usage order (SCUO) (Wan et al. 2004). Calculate values of the codon usage expressivity measure for every sequence in the given codonTable object. The following methods that are implemented include codon usage expressivity measure based on Measure Independent of Length and Composition (MELP) (Supek and Vlahovicek 2005), gene expression measure (E) (Karlin and Mrázek 2000), Codon Adaptation Index (CAI) (Sharp and Li 1987), frequency of optimal codons (Fop) (Ikemura 1981), gene codon bias (GCB) (Merkl 2003).
+
+# 2.Materials
+
+## 2.1 Installation of packages:
+coRdon package can be found on Bioconductor (https://www.bioconductor.org/packages/release/bioc/html/coRdon.html). All packages included can be installed via method below:
+```{r eval = FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("coRdon")
+BiocManager::install("Biostrings")
+BiocManager::install("Biobase")
+BiocManager::install("ComplexHeatmap")
+BiocManager::install("KEGGREST")
+install.packages("ggplot2")
+```
 
 
-## Materials
-
-Installation of packages:
-
-```{r}
+```{r warning = FALSE, message = FALSE} 
 library(coRdon)
 library(ggplot2)
 library(Biostrings)
 library(Biobase)
 library(ComplexHeatmap)
+library(KEGGREST)
 ```
 
 
 
 
-Example data- In this study the coRdon package will be used on Sequences from human gut microbiome samples of healthy individuals and liver cirrhosis patients (Quin et al. 2014). This was then processed, assembled and used to predict ORFs, which were then annotated with a KO (KEGG orthology) function (Fabijanic and Vlahovicek 2016). Put in own words. After this data of LD94 and HD59 DNA sequences which was taken from fasta files were used. To get the data files the code used was:
+## 2.2 Example data
+In this study the coRdon package was used on sequences from human gut microbiome samples of healthy individuals and liver cirrhosis patients (Quin et al. 2014). This was then processed, assembled and used to predict ORFs, which were then annotated with a KO (KEGG orthology) function (Fabijanic and Vlahovicek 2016). 
 
-```{r}
+## 2.3 Loading DNA Data Sequences
+This is done by storing DNA sequences as a codonTable which is compatible with fasta files and DNA stringset from biostrings package (Elek 2018). After this data of LD94 and HD59 DNA sequences which was taken from fasta files were used. To get the data files the code used was:
+
+```{r warning = FALSE}
 dnaLD94 <- readSet(
   file="https://raw.githubusercontent.com/BioinfoHR/coRdon-examples/master/LD94.fasta"
 )
@@ -40,8 +82,347 @@ dnaHD59 <- readSet(
   file="https://raw.githubusercontent.com/BioinfoHR/coRdon-examples/master/HD59.fasta"
 )
 HD59 <- codonTable(dnaHD59)
+```
+
+## 2.4 Calculating Codon Usage statistics
+All the statistics included within the coRdon package can be calculated for sequences in the codonTable. The statistics that measure CUB include MILC, B, MCB, and ENC’. Statistics should be done to on sequences with more than 80 codons as less then this may lead to unreliable results (Elek 2018).
+
+## 2.5 Predicting genes expressivity
+Codon usage statistics can be used to predict relative expression level of genes via different measures such as MELP, CAI, E, and Fop. Sequences shorter then 80 codons were excluded.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 3. Data Analysis and Results
+
+## 3.1 Calculate Codon Usage Bias
+
+There are many different statistics that can be used to measure codon usage within the coRdon package. An example of this includes the Measure Independent of Length and Composition (MILC) which can be calculated for sequences in a codon table for example:
+
+```{r}
+milc <- MILC(HD59)
+head(milc)
+```
+
+
+MILC by default for every sequence sey is calculated in conjuction with the average CUB of the entire sample (self). self = FALSE can change this and compare the subset of genes to a reference set of genes. The reference set of genes are highly expressed e.g. ribosomal genes and if a gene set is annotated these genes calculated CUB can be compared to the ribosomal genes CUB by applying the setting ribosomal = TRUE.
+
+```{r}
+milc <- MILC(HD59, ribosomal = TRUE)
+head(milc)
 
 ```
+
+
+Some codon usage statistics such as MILC are somewhat dependant on the length of the sequence calculated which would result in meaningful data. It is reccomended that the sequences should at minimum be 80 codons long. Soft filtering will produce a message if there are sequences below 80 codons and not remove them however hard filtering will removed sequences below specified threshold from the Codon Table.
+```{r warning = TRUE}
+milc <- MILC(HD59, filtering = "soft")
+```
+```{r include=FALSE}
+lengths <- getlen(HD59)
+hist(lengths, breaks = 60)
+abline(v = 80, col="red")
+```
+
+
+Using getlen() we can visually inspect the distribution of sequence lengths extracted from the codon table:
+```{r}
+lengths <- as.data.frame(getlen(HD59))
+colnames(lengths) <- "length"
+ggplot(lengths, aes(length)) + 
+    geom_density() +
+    geom_vline(xintercept = 80, colour = "red") +
+    theme_light()
+```
+
+Figure 1 - This illustrates the distribution in the length of sequences found in data sample HD59.This was done using MILC values. 
+
+
+This function is used to remove all sequences below 80 codons.
+```{r}
+milc <- MILC(HD59, ribosomal = TRUE, filtering = "hard")
+```
+
+Other CU statistics can be calculated in the same way as MILC(), using one of the functions: B(), MCB(), ENCprime(), ENC() or SCUO(). Note however, that when calculating ENC and SCUO, one doesn’t need to provide a subset of reference genes, because these statistics measure distance in codon usage to uniform usage of synonymous codons.
+## 3.2 Visualization of Codon Usage Bias
+
+
+
+B plot can be done to visualize CUB for every gene. Each gene is represented by a single plot with the genes CUB to overall CUB (self on the y axis) and to the CUB of the reference genes (ribosomal on the x axis).
+```{r}
+xlab <- "MILC distance from sample centroid"
+ylab <- "MILC distance from ribosomal genes"
+
+milc_HD59 <- MILC(HD59, ribosomal = TRUE)
+Bplot(x = "ribosomal", y = "self", data = milc_HD59) +
+    labs(x = xlab, y = ylab)
+```
+
+Figure 2- illustrates genes from data set (healthy individual) HD59 showing the MILC of the genes distance from both the sample and from the ribosomal genes.
+
+
+```{r eval = FALSE}
+milc_LD94 <- MILC(LD94, ribosomal = TRUE)
+Bplot(x = "ribosomal", y = "self", data = milc_LD94) +
+      labs(x = xlab, y = ylab)
+```
+
+
+T
+Using the annotation argument will allow indication of certain genes on the plot which would correspond to the dataset used. For example ribosomal = TRUE will annotate the corresponding ribosomal data to a character vector annotation. 
+```{r}
+genes <- getKO(HD59)[getlen(HD59) > 80]
+Bplot(x = "ribosomal", y = "self", data = milc,
+        annotations = genes, ribosomal = TRUE) +
+    labs(x = xlab, y = ylab)
+```
+
+Figure 3 - Illustrates the annotated (healthy individual) HD59 being compared to the ribosomal genes via MILC from the distance of the HD59 sample and the distance of the ribosomal genes.
+
+
+
+Another way to visualise codon usage can be done using the codon usage of two different samples on a B plot. This can be done by using the intraBplot() function using two codon table datasets which lots the gens in the dataset aginst one another. Also ribosomal genes can be plotted via the setting ribosomal = TRUE, which will show the genes as stronger points on the plot.
+```{r}
+intraBplot(HD59, LD94, names = c("HD59", "LD94"), 
+            variable = "MILC", 
+            ribosomal = TRUE)
+```
+
+Figure 4 - Illustrates the codon usage between both (liver cirrhosis patients) LD94 and (healthy individual) HD59 datasets comparing the genes distance from one another calculated using MILC statistic in an intraBplot.
+
+## 3.3 Predict genes expressivity
+
+We can predict the expression levels of genes within a sample via the several different measures of codon usage-based gene expressitivity found within coRdon. These expression levels of genes are once again compared to the ribsomal genes as a reference. Here the calculated values of MILC-based expression level predictor (MELP), which is compared to the ribosomal genes. Hard filtering is also done to remove sequences shorter than 80 codons.
+```{r}
+melp <- MELP(HD59, ribosomal = TRUE, filtering = "hard")
+head(melp)
+
+```
+
+
+
+Other statstical measures for gene expressitivity include CAI(), GCB(), E(), and Fop() functions.
+
+Genes with high expressitivty values (for example in MILC greater than 1) are consider the sample to be optimized for translation. If annation of genes is available, enrchemnt analysis can be done to show how significantly enriched a sample is.
+
+## 3.4 Functional annotation
+
+
+With functional annotation significantly depleted or enriched function of annotated genes predicted to have a high expression level can be identified.
+
+First a contingency table is created that summarizes the counts of genes annotated to each KO category for all genes in a sample, which includes genes that are predicted to be highly expressed. The crossTab() function gives a character vector to genes annotated and a numeric vector for their respective MELP values showing highly expressed genes which have a MELP values of greater than 1.
+```{r}
+ct <- crossTab(genes, as.numeric(melp), threshold = 1L)
+ct
+```
+
+
+
+Can also define just highly expressed perecent of gens with the highest MELP values.
+```{r}
+crossTab(genes, as.numeric(melp), percentiles = 0.05)
+```
+
+
+Enrichment plotting function such as enrichMAplot and enrichBarplot which can be used to analyse enrichment. Enrichment analysis can be done using a contingency table which can allow for statistical testing with including multiple testingwhich can be done by specifying pAdjustMethod arguement. Also parameters such as pvalueCutoff and padjCutoff can be used through enrichment() function to exclude and specift significance levels of sequences wanted.
+
+```{r}
+enr <- enrichment(ct)
+enr
+```
+
+This can show data stored in data frame via the Biobase package.
+```{r}
+enr_data <- pData(enr)
+head(enr_data)
+```
+## 3.5 Visualization of enrichment
+
+
+Enriched and depleted KO catagories are plotted on an MA plot, with the significance of the enrichment or depletion define by p-values below the significance level (siglev) of 0.05. By adjusting the setting pvalue = "padj" one can ajust the p-value for values at different siglev.
+```{r}
+enrichMAplot(enr, pvalue = "pvals", siglev = 0.05) +
+    theme_light()
+```
+
+Figure 5 - illustrates the significance level of KO categories displaying significance for values below 0.05 as TRUE and over 0.05 as False. This is shown on an MA Plot plotting against M and A of the selected KO catagories using the MELP measure.
+
+
+
+To determine enriched functions among highly expressed gene we need to map the KO annotations. This can be done using the reduceCrossTab() method which takes a crossTab object which maps the KO catagories to either KEGG Module, KEGG Pathway, or COG functional categories.
+
+```{r}
+ctpath <- reduceCrossTab(ct, target = "pathway")
+ctpath
+```
+
+
+
+Using the reduced contingency table enrichment analysis can be performed.
+```{r}
+enrpath <- enrichment(ctpath)
+enrpath_data <- pData(enrpath)
+head(enrpath_data)
+```
+
+
+
+
+Using the enrichBarplot() function enrichment results can be plotted. The coloured bars indicate levels of significane (padj) and their relative enrichment is their height which can also mean average scaled counts (A) or scaled counts ratio (M). Also the siglev us specified for each catagory.
+```{r fig.height = 12}
+enrichBarplot(enrpath, variable = "enrich", 
+                pvalue = "padj", siglev = 0.05) +
+    theme_light() +
+    coord_flip() +
+    labs(x = "category", y = "relative enrichment")
+```
+
+Figure 6 - Illustrates the relative enrichment of categories such as  KEGG Pathway categories showing the level of significance shown with a p value less than 0.05.
+
+```{r eval=FALSE}
+ paths <- names(keggList("pathway"))
+  paths <- regmatches(paths, regexpr("[[:alpha:]]{2,4}\\d{5}", paths))
+  pnames <- unname(keggList("pathway"))
+  ids <- match(pData(enrpath)$category, paths)
+  descriptions <- pnames[ids]
+  pData(enrpath)$category <- descriptions
+  enrpath_data <- pData(enrpath)
+```
+
+## 3.6 Integration
+
+
+
+The enrichMatrix() function can be used to have data from different samples in to a matrix with gene sequences in rows and values for different samples in columns. This can allow results from codon usage analysis in various downstream applications.
+
+With that in mind codon usage-based enrichment analysis could be done on two metagenomic samples with the results being compared on a heatmap using the ComplexHeatmap package. This for example could be done by:
+```{r}
+# calculate MELP
+melpHD59 <- MELP(HD59, ribosomal = TRUE, 
+                filtering = "hard", len.threshold = 100)
+genesHD59 <- getKO(HD59)[getlen(HD59) > 100]
+
+melpLD94 <- MELP(LD94, ribosomal = TRUE, 
+                filtering = "hard", len.threshold = 100)
+genesLD94 <- getKO(LD94)[getlen(LD94) > 100]
+
+# make cntingency table
+ctHD59 <- crossTab(genesHD59, as.numeric(melpHD59))
+ctLD94 <- crossTab(genesLD94, as.numeric(melpLD94))
+
+ctHD59 <- reduceCrossTab(ctHD59, "pathway")
+ctLD94 <- reduceCrossTab(ctLD94, "pathway")
+
+# calculate enrichment
+enrHD59 <- enrichment(ctHD59)
+enrLD94 <- enrichment(ctLD94)
+
+mat <- enrichMatrix(list(HD59 = enrHD59, LD94 = enrLD94), 
+                    variable = "enrich")
+head(mat)
+```
+
+
+The Heatmap() function for plotting can allow for vizulaisation of the matrix with the KEGGREST package used to identify pathways.
+```{R fig.height=15, fig.width=7}
+paths <- names(KEGGREST::keggList("pathway"))
+  paths <- regmatches(paths, regexpr("[[:alpha:]]{2,4}\\d{5}", paths))
+  pnames <- unname(KEGGREST::keggList("pathway"))
+  ids <- match(rownames(mat), paths)
+  descriptions <- pnames[ids]
+  rownames(mat) <- descriptions
+  
+  mat <- mat[apply(mat, 1, function(x) all(x!=0)), ]
+  ComplexHeatmap::Heatmap(
+      mat,
+      name = "relative \nenrichment",
+      col = circlize::colorRamp2( c(-100, 0, 100),
+                                  c("red", "white", "blue")),
+      row_names_side = "left",
+      row_names_gp = gpar(fontsize = 8),
+      show_column_dend = FALSE,
+      show_row_dend = FALSE)
+```
+
+Figure 7 - Illustrates the comparison of relative enrichment of data samples (liver cirrhosis patient) LD94 and (healthy individual) HD59 which shows a heatmap to show the level of relative enrichment.
+ 
+# 4. Discussion
+This packages method allows for the visualization of enrichment and for the calculations of CUB which can then be used to visualize of the data. The results in figure 3 show that the package could visualize CUB via the comparison between the sample data (healthy individuals) HD59 and the CU bias of reference genes. Also, in figure 4 the package visualized the comparison of CUB in both data sets of (healthy individuals) HD59 and (liver cirrhosis patient) LD94. This shows that this package was successful in visualizing the CUB of a set of genes in a data set which could be applied to other data sets. This visualization of CUB can show which genes in the sample data are optimized for gene expression. This is advantageous as it shows that when using data samples, individuals can visualize the gene expression of genes to see if they are optimized. This package allowed for the visualization of the enrichment of the genes, which is present in figures 5 and 6 which shows significant enrichment or depletion of the genes. This is also advantageous as it shows how statistically significant the genes are within the data sample showing that certain genes were enriched such as map00740 in figure 6 which had a level of significance of less than 0.005. Also, in figure 7 it shows how two metagenomic samples are compared to one another to see differences in codon usage-based enrichment analysis. As this could be performed using this package it shows that this package can be done to compare other metagenomic data samples which can compare how genes are enriched in different data samples. With all this it has shown that the package can perform what it intends to do.
+
+As this package is relatively new not many studies have been done using this package. However, when studies have been done using this package, they only tend to calculate values rather than use coRdon as a visualization tool for codon usage bias and enrichment. This is shown by studies done by Wu et al, 2020 and by Pan et al, 2020 which both used the package to calculate effective number of codons (ENC) rather than to include the visualization of CUB (Wu et al. 2020) (Pan et al. 2020). This is disadvantageous as it shows that the package may not be effective in visualising cub and enrichment in an effective and meaningful way. This suggests more research should be done in to improving the visualization aspect of the package. However, on the other hand this package has been shown to be useful in calculating cub via various different statistical methods included in the package making it useful when calculating values for CUB and more versatile for individuals to calculate different statistical values. There are also other packages that run the same calculations as coRdon such as CUBAP which is shown to run such as ENC and CAI. However, coRdon is shown to be more easier to use as this package requires the use of a package called extramp in python and requires the use of Microsoft Power BI for visualisation (Miller et al. 2019) (Hodgman et al. 2020).
+
+In this package in figures 5 and 6 it is shown that this package can visualize enrichment of genes. This was done to show how enriched the genes are and this is advantageous due to there being statistical evidence for how significant the findings are which allows for the results to have statistical meaning. However other packages the use enrichment such as dose use different figures when displaying enrichment which can be shown by Doke et al which shows different ways of visualizing enrichment when compared to the coRdon package (Doke et al. 2021). This shows that even though these figures showed significance there may be better ways of visualizing enrichment with more research being done into this package and may lead through increased knowledge on the best way to visualize enrichment.
+
+# 5. Conclusion
+The coRdon package is a versatile and useful tool when calculating and visualizing CUB and enrichment. This makes it beneficial when calculating and showing CUB however, as studies tend to use part of the package such as calculations rather than visualization. More research should be done in to making the package more effective and useful when visualizing CUB.
+
+# 6. References
+Doke, M., Ramasamy, T., Sundar, V., McLaughlin, J. P. and Samikkannu, T. (2021) Proteomics Profiling with SWATH-MS Quantitative Analysis of Changes in the Human Brain with HIV Infection Reveals a Differential Impact on the Frontal and Temporal Lobes. Brain sciences 11 (11), 1438.
+
+Elek, A. (2018) coRdon: an R package for codon usage analysis and prediction of gene expressivity.
+
+Fabijanić, M. and Vlahoviček, K. (2016) Big Data, Evolution, and Metagenomes: Predicting Disease from Gut Microbiota Codon Usage Profiles. Methods Mol Biol 1415, 509-31.
+
+Galtier, N., Roux, C., Rousselle, M., Romiguier, J., Figuet, E., Glémin, S., Bierne, N. and Duret, L. (2018) Codon Usage Bias in Animals: Disentangling the Effects of Natural Selection, Effective Population Size, and GC-Biased Gene Conversion. Molecular Biology and Evolution 35 (5), 1092-1103.
+
+Hodgman, M. W., Miller, J. B., Meurs, T. E. and Kauwe, J. S. K. (2020) CUBAP: an interactive web portal for analyzing codon usage biases across populations. Nucleic Acids Research 48 (19), 11030-11039.
+
+Ikemura, T. (1981) Correlation between the abundance of Escherichia coli transfer RNAs and the occurrence of the respective codons in its protein genes: a proposal for a synonymous codon choice that is optimal for the E. coli translational system. J Mol Biol 151 (3), 389-409.
+
+Jeacock, L., Faria, J. and Horn, D. (2018) Codon usage bias controls mRNA and protein abundance in trypanosomatids. eLife 7, e32496.
+
+Jordan-Paiz, A., Franco, S. and Martínez, M. A. (2021) Impact of Synonymous Genome Recoding on the HIV Life Cycle. Frontiers in Microbiology 12, 575.
+
+Karlin, S. and Mrázek, J. (2000) Predicted highly expressed genes of diverse prokaryotic genomes. J Bacteriol 182 (18), 5238-50.
+
+Karlin, S., Mrázek, J., Campbell, A. and Kaiser, D. (2001) Characterizations of highly expressed genes of four fast-growing bacteria. J Bacteriol 183 (17), 5025-40.
+
+Kumar, N., Kulkarni, D. D., Lee, B., Kaushik, R., Bhatia, S., Sood, R., Pateriya, A. K., Bhat, S. and Singh, V. P. (2018) Evolution of Codon Usage Bias in Henipaviruses Is Governed by Natural Selection and Is Host-Specific. Viruses 10 (11).
+
+Merkl, R. (2003) A survey of codon and amino acid frequency bias in microbial genomes focusing on translational efficiency. J Mol Evol 57 (4), 453-66.
+
+Miller, J. B., Brase, L. R. and Ridge, P. G. (2019) ExtRamp: a novel algorithm for extracting the ramp sequence based on the tRNA adaptation index or relative codon adaptiveness. Nucleic acids research 47 (3), 1123-1131.
+
+Novembre, J. A. (2002) Accounting for background nucleotide composition when measuring codon usage bias. Mol Biol Evol 19 (8), 1390-4.
+
+Pan, S., Mou, C., Wu, H. and Chen, Z. (2020) Phylogenetic and codon usage analysis of atypical porcine pestivirus (APPV). Virulence 11 (1), 916-926.
+
+Qin, N., Yang, F., Li, A., Prifti, E., Chen, Y., Shao, L., Guo, J., Le Chatelier, E., Yao, J., Wu, L., Zhou, J., Ni, S., Liu, L., Pons, N., Batto, J. M., Kennedy, S. P., Leonard, P., Yuan, C., Ding, W., Chen, Y., Hu, X., Zheng, B., Qian, G., Xu, W., Ehrlich, S. D., Zheng, S. and Li, L. (2014) Alterations of the human gut microbiome in liver cirrhosis. Nature 513 (7516), 59-64.
+
+Sharp, P. M. and Li, W. H. (1987) The codon Adaptation Index--a measure of directional synonymous codon usage bias, and its potential applications. Nucleic Acids Res 15 (3), 1281-95.
+
+Supek, F. and Vlahovicek, K. (2005) Comparison of codon usage measures and their applicability in prediction of microbial gene expressivity. BMC Bioinformatics 6, 182.
+
+Tian, G., Li, G., Liu, Y., Liu, Q., Wang, Y., Xia, G. and Wang, M. (2020) Polyploidization is accompanied by synonymous codon usage bias in the chloroplast genomes of both cotton and wheat. PLOS ONE 15 (11), e0242624.
+
+Tipney, H. and Hunter, L. (2010) An introduction to effective use of enrichment analysis software. Human genomics 4 (3), 202-206.
+
+Urrutia, A. O. and Hurst, L. D. (2001) Codon usage bias covaries with expression breadth and the rate of synonymous evolution in humans, but this is not evidence for selection. Genetics 159 (3), 1191-9.
+
+Wan, X. F., Xu, D., Kleinhofs, A. and Zhou, J. (2004) Quantitative relationship between synonymous codon usage bias and GC composition across unicellular genomes. BMC Evol Biol 4, 19.
+
+Weissman, J. L., Hou, S. and Fuhrman, J. A. (2021) Estimating maximal microbial growth rates from cultures, metagenomes, and single cells via codon usage patterns. Proceedings of the National Academy of Sciences 118 (12), e2016810118.
+
+Wright, F. (1990) The 'effective number of codons' used in a gene. Gene 87 (1), 23-9.
+
+Wu, H., Bao, Z., Mou, C., Chen, Z. and Zhao, J. (2020) Comprehensive Analysis of Codon Usage on Porcine Astrovirus. Viruses 12 (9).
+
 
 
 
