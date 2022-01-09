@@ -66,8 +66,6 @@ library(KEGGREST)
 ```
 
 
-
-
 ## 2.2 Example data
 In this study the coRdon package was used on sequences from human gut microbiome samples of healthy individuals and liver cirrhosis patients (Quin et al. 2014). This was then processed, assembled and used to predict ORFs, which were then annotated with a KO (KEGG orthology) function (Fabijanic and Vlahovicek 2016). 
 
