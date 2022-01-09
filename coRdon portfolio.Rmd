@@ -92,24 +92,6 @@ All the statistics included within the coRdon package can be calculated for sequ
 Codon usage statistics can be used to predict relative expression level of genes via different measures such as MELP, CAI, E, and Fop. Sequences shorter then 80 codons were excluded.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # 3. Data Analysis and Results
 
 ## 3.1 Calculate Codon Usage Bias
