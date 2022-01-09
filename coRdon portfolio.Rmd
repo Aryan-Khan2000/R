@@ -104,7 +104,7 @@ head(milc)
 ```
 
 
-MILC by default for every sequence sey is calculated in conjuction with the average CUB of the entire sample (self). self = FALSE can change this and compare the subset of genes to a reference set of genes. The reference set of genes are highly expressed e.g. ribosomal genes and if a gene set is annotated these genes calculated CUB can be compared to the ribosomal genes CUB by applying the setting ribosomal = TRUE.
+MILC by default for every sequence set is calculated in conjunction with the average CUB of the entire sample (self). self = FALSE can change this and compare the subset of genes to a reference set of genes. The reference set of genes are highly expressed e.g. ribosomal genes and if a gene set is annotated these genes calculated CUB can be compared to the ribosomal genes CUB by applying the setting ribosomal = TRUE.
 
 ```{r}
 milc <- MILC(HD59, ribosomal = TRUE)
@@ -113,7 +113,7 @@ head(milc)
 ```
 
 
-Some codon usage statistics such as MILC are somewhat dependant on the length of the sequence calculated which would result in meaningful data. It is reccomended that the sequences should at minimum be 80 codons long. Soft filtering will produce a message if there are sequences below 80 codons and not remove them however hard filtering will removed sequences below specified threshold from the Codon Table.
+Some codon usage statistics such as MILC are somewhat dependent on the length of the sequence calculated which would result in meaningful data. It is recommended that the sequences should at minimum be 80 codons long. Soft filtering will produce a message if there are sequences below 80 codons and not remove them however hard filtering will removed sequences below specified threshold from the codonTable.
 ```{r warning = TRUE}
 milc <- MILC(HD59, filtering = "soft")
 ```
@@ -142,9 +142,7 @@ This function is used to remove all sequences below 80 codons.
 milc <- MILC(HD59, ribosomal = TRUE, filtering = "hard")
 ```
 
-Other CU statistics can be calculated in the same way as MILC(), using one of the functions: B(), MCB(), ENCprime(), ENC() or SCUO(). Note however, that when calculating ENC and SCUO, one doesn’t need to provide a subset of reference genes, because these statistics measure distance in codon usage to uniform usage of synonymous codons.
 ## 3.2 Visualization of Codon Usage Bias
-
 
 
 B plot can be done to visualize CUB for every gene. Each gene is represented by a single plot with the genes CUB to overall CUB (self on the y axis) and to the CUB of the reference genes (ribosomal on the x axis).
@@ -167,7 +165,6 @@ Bplot(x = "ribosomal", y = "self", data = milc_LD94) +
 ```
 
 
-T
 Using the annotation argument will allow indication of certain genes on the plot which would correspond to the dataset used. For example ribosomal = TRUE will annotate the corresponding ribosomal data to a character vector annotation. 
 ```{r}
 genes <- getKO(HD59)[getlen(HD59) > 80]
@@ -180,7 +177,7 @@ Figure 3 - Illustrates the annotated (healthy individual) HD59 being compared to
 
 
 
-Another way to visualise codon usage can be done using the codon usage of two different samples on a B plot. This can be done by using the intraBplot() function using two codon table datasets which lots the gens in the dataset aginst one another. Also ribosomal genes can be plotted via the setting ribosomal = TRUE, which will show the genes as stronger points on the plot.
+Another way to visualize codon usage can be done using the codon usage of two different samples on a B plot. This can be done by using the intraBplot() function using two codon table datasets which puts the genes in the dataset against one another. Also ribosomal genes can be plotted via the setting ribosomal = TRUE, which will show the genes as stronger points on the plot.
 ```{r}
 intraBplot(HD59, LD94, names = c("HD59", "LD94"), 
             variable = "MILC", 
@@ -191,7 +188,7 @@ Figure 4 - Illustrates the codon usage between both (liver cirrhosis patients) L
 
 ## 3.3 Predict genes expressivity
 
-We can predict the expression levels of genes within a sample via the several different measures of codon usage-based gene expressitivity found within coRdon. These expression levels of genes are once again compared to the ribsomal genes as a reference. Here the calculated values of MILC-based expression level predictor (MELP), which is compared to the ribosomal genes. Hard filtering is also done to remove sequences shorter than 80 codons.
+We can predict the expression levels of genes within a sample via the several different measures of codon usage-based gene expressitivity found within coRdon. These expression levels of genes are once again compared to the ribosomal genes as a reference. Here the calculated values of MILC-based expression level predictor (MELP), which is compared to the ribosomal genes. Hard filtering is also done to remove sequences shorter than 80 codons.
 ```{r}
 melp <- MELP(HD59, ribosomal = TRUE, filtering = "hard")
 head(melp)
@@ -200,9 +197,9 @@ head(melp)
 
 
 
-Other statstical measures for gene expressitivity include CAI(), GCB(), E(), and Fop() functions.
+Other statistical measures for gene expressitivity include CAI(), GCB(), E(), and Fop() functions.
 
-Genes with high expressitivty values (for example in MILC greater than 1) are consider the sample to be optimized for translation. If annation of genes is available, enrchemnt analysis can be done to show how significantly enriched a sample is.
+Genes with high expressitivty values (for example in MILC greater than 1) are consider the sample to be optimized for translation. If annotation of genes is available, enrichment analysis can be done to show how significantly enriched a sample is.
 
 ## 3.4 Functional annotation
 
@@ -223,7 +220,7 @@ crossTab(genes, as.numeric(melp), percentiles = 0.05)
 ```
 
 
-Enrichment plotting function such as enrichMAplot and enrichBarplot which can be used to analyse enrichment. Enrichment analysis can be done using a contingency table which can allow for statistical testing with including multiple testingwhich can be done by specifying pAdjustMethod arguement. Also parameters such as pvalueCutoff and padjCutoff can be used through enrichment() function to exclude and specift significance levels of sequences wanted.
+Enrichment plotting function such as enrichMAplot and enrichBarplot which can be used to analyse enrichment. Enrichment analysis can be done using a contingency table which can allow for statistical testing with including multiple testing which can be done by specifying pAdjustMethod arguement. Also parameters such as pvalueCutoff and padjCutoff can be used through enrichment() function to exclude and specify significance levels of sequences wanted.
 
 ```{r}
 enr <- enrichment(ct)
@@ -238,17 +235,17 @@ head(enr_data)
 ## 3.5 Visualization of enrichment
 
 
-Enriched and depleted KO catagories are plotted on an MA plot, with the significance of the enrichment or depletion define by p-values below the significance level (siglev) of 0.05. By adjusting the setting pvalue = "padj" one can ajust the p-value for values at different siglev.
+Enriched and depleted KO categories are plotted on an MA plot, with the significance of the enrichment or depletion define by p-values below the significance level (siglev) of 0.05. By adjusting the setting pvalue = "padj" one can adjust the p-value for values at different siglev.
 ```{r}
 enrichMAplot(enr, pvalue = "pvals", siglev = 0.05) +
     theme_light()
 ```
 
-Figure 5 - illustrates the significance level of KO categories displaying significance for values below 0.05 as TRUE and over 0.05 as False. This is shown on an MA Plot plotting against M and A of the selected KO catagories using the MELP measure.
+Figure 5 - illustrates the significance level of KO categories displaying significance for values below 0.05 as TRUE and over 0.05 as False. This is shown on an MA Plot plotting against M and A of the selected KO categories using the MELP measure.
 
 
 
-To determine enriched functions among highly expressed gene we need to map the KO annotations. This can be done using the reduceCrossTab() method which takes a crossTab object which maps the KO catagories to either KEGG Module, KEGG Pathway, or COG functional categories.
+To determine enriched functions among highly expressed gene we need to map the KO annotations. This can be done using the reduceCrossTab() method which takes a crossTab object which maps the KO categories to either KEGG Module, KEGG Pathway, or COG functional categories.
 
 ```{r}
 ctpath <- reduceCrossTab(ct, target = "pathway")
@@ -267,7 +264,7 @@ head(enrpath_data)
 
 
 
-Using the enrichBarplot() function enrichment results can be plotted. The coloured bars indicate levels of significane (padj) and their relative enrichment is their height which can also mean average scaled counts (A) or scaled counts ratio (M). Also the siglev us specified for each catagory.
+Using the enrichBarplot() function enrichment results can be plotted. The colored bars indicate levels of significance (padj) and their relative enrichment is their height which can also mean average scaled counts (A) or scaled counts ratio (M). Also the siglev us specified for each category.
 ```{r fig.height = 12}
 enrichBarplot(enrpath, variable = "enrich", 
                 pvalue = "padj", siglev = 0.05) +
