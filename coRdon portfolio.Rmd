@@ -1,0 +1,47 @@
+---
+title: "coRdon"
+author: "Aryan Khan"
+date: "09/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# coRdon R Package
+
+## Contents:
+
+
+## Materials
+
+Installation of packages:
+
+```{r}
+library(coRdon)
+library(ggplot2)
+library(Biostrings)
+library(Biobase)
+library(ComplexHeatmap)
+```
+
+
+
+
+Example data- In this study the coRdon package will be used on Sequences from human gut microbiome samples of healthy individuals and liver cirrhosis patients (Quin et al. 2014). This was then processed, assembled and used to predict ORFs, which were then annotated with a KO (KEGG orthology) function (Fabijanic and Vlahovicek 2016). Put in own words. After this data of LD94 and HD59 DNA sequences which was taken from fasta files were used. To get the data files the code used was:
+
+```{r}
+dnaLD94 <- readSet(
+  file="https://raw.githubusercontent.com/BioinfoHR/coRdon-examples/master/LD94.fasta"
+)
+LD94 <- codonTable(dnaLD94)
+dnaHD59 <- readSet(
+  file="https://raw.githubusercontent.com/BioinfoHR/coRdon-examples/master/HD59.fasta"
+)
+HD59 <- codonTable(dnaHD59)
+
+```
+
+
+
